@@ -20,10 +20,10 @@ public class BankClientDAO {
         stmt.execute("select * from bank_client");
         ResultSet result = stmt.getResultSet();
         while (result.next()) {
-            long id = result.getLong(1);
-            String name = result.getNString(2);
-            String pass = result.getNString(3);
-            long money = result.getLong(4);
+            long id = result.getLong("id");
+            String name = result.getNString("name");
+            String pass = result.getNString("password");
+            long money = result.getLong("money");
             BankClient client = new BankClient(id, name, pass, money);
             list.add(client);
         }
@@ -56,59 +56,48 @@ public class BankClientDAO {
             preparedStatement.setLong(1, money);
             preparedStatement.setString(2, name);
             preparedStatement.executeUpdate();
-            resultSet.close();;
+            resultSet.close();
             preparedStatement.close();
         }
 
     }
 
     public BankClient getClientById(long id) throws SQLException {
-        Statement stmt = connection.createStatement();
-        stmt.execute("select * from bank_client where id='" + id + "'");
-        ResultSet result = stmt.getResultSet();
+        PreparedStatement preparedStatement = connection.prepareStatement("select * from bank_client where id = ?");
+        preparedStatement.setString(1, String.valueOf(id));
+        ResultSet result = preparedStatement.executeQuery();
         result.next();
-        String name = result.getNString(2);
-        String pass = result.getNString(3);
-        Long money = result.getLong(4);
+        String name = result.getNString("name");
+        String pass = result.getNString("password");
+        Long money = result.getLong("money");
         BankClient client = new BankClient(name, pass, money);
         result.close();
-        stmt.close();
+        preparedStatement.close();
         return client;
     }
 
     public boolean isClientHasSum(String name, Long expectedSum) throws SQLException {
-        Statement stmt = connection.createStatement();
-        stmt.execute("select * from bank_client where name='" + name + "'");
-        ResultSet result = stmt.getResultSet();
+        PreparedStatement preparedStatement = connection.prepareStatement("select * from bank_client where name = ?");
+        preparedStatement.setString(1, name);
+        ResultSet result = preparedStatement.executeQuery();
         result.next();
-        Long money = result.getLong(4);
+        Long money = result.getLong("money");
         result.close();
-        stmt.close();
+        preparedStatement.close();
         return expectedSum <= money;
     }
 
-    public long getClientIdByName(String name) throws SQLException {
-        Statement stmt = connection.createStatement();
-        stmt.execute("select * from bank_client where name='" + name + "'");
-        ResultSet result = stmt.getResultSet();
-        result.next();
-        Long id = result.getLong(1);
-        result.close();
-        stmt.close();
-        return id;
-    }
-
     public BankClient getClientByName(String name) throws SQLException {
-        Statement stmt = connection.createStatement();
-        stmt.execute("select * from bank_client where name='" + name + "'");
-        ResultSet result = stmt.getResultSet();
+        PreparedStatement preparedStatement = connection.prepareStatement("select * from bank_client where name = ?");
+        preparedStatement.setString(1, name);
+        ResultSet result = preparedStatement.executeQuery();
         result.next();
-        String nameclient = result.getNString(2);
-        String pass = result.getNString(3);
-        Long money = result.getLong(4);
+        String nameclient = result.getNString("name");
+        String pass = result.getNString("password");
+        Long money = result.getLong("money");
         BankClient client = new BankClient(nameclient, pass, money);
         result.close();
-        stmt.close();
+        preparedStatement.close();
         return client;
     }
 
